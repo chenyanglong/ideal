@@ -16,13 +16,9 @@
       <div class="bs-sidebar hidden-print affix-top" role="complementary">
         <ul id="nav" class="nav bs-sidenav" >
 		 <li  class="active"> <a  href="#root">概况</a>
-		  <li > <a  href="#m0">本月</a>
-          <li > <a  href="#m-1">2015年12月</a>
-
-
-          </li>
-          <li > <a href="#m-2">2015年11月</a>
-          </li>
+       {% for bill in bills %}
+      <li > <a  href="#{{bill.id}}">{{bill.create_time.strftime('%Y')}}年{{bill.create_time.strftime('%m')}}月</a>
+       {% endfor %}
 
         </ul>
       </div>
@@ -41,62 +37,25 @@
 
 
       </div>
-
+{% for bill in bills %}
       <div class="bs-docs-section">
         <div class="page-header">
-          <h1 id="m0"><a href="baseCustomors.html#rmyy">本月</a></h1>
+          <h1 id="{{bill.id}}"><a href="baseCustomors.html#rmyy">{{bill.create_time.strftime('%Y')}}年{{bill.create_time.strftime('%m')}}月账单</a></h1>
         </div>
-		 <h2 ><a href="baseCustomors.html#rmyy">上海市第一人民医院</a></h1>
-		<h3 id = "test">2016年1月账单</h3>
+		 <h2 ><a href="baseCustomors.html#rmyy">{{bill.customer_name}}</a></h1>
 	<table class="table">
-
       <tbody>
-        <tr><td>服务名称</td><td>价格(元)</td></tr>
-        <tr><td>影像云归档100T</td><td>37800</td></tr>
-      <tr><td>影像云会诊</td><td>5000</td></tr>
-	  <tr><td>合计</td><td>42800</td></tr>
-
+        <tr><td>服务名称</td><td>详细</td><td>价格(元)</td></tr>
+        {% for service in bill.services %}
+        <tr><td>{{service}}</td></tr>
+        {% endfor %}
+        <tr><td>合计</td><td></td><td>44800</td></tr>
    </tbody></table>
-
-
-
-  </div>
+      </div>
+      {% endfor %}
       <!-- File structure
   ================================================== -->
-		<div class="bs-docs-section">
-        <div class="page-header">
-          <h1 id="m-1"><a href="#"> 2015年12月</a></h1>
-        </div>
-		<h2 id=""><a href="baseCustomors.html#chyy"> 上海市长海医院</a></h1>
-       <h3>订单</h3>
-	<table class="table">
 
-      <tbody><tr><td>服务名称</td><td id="aa">影像云标准包</td></tr>
-      <tr><td>生效时间</td><td>2016-12-12 12:00</td></tr>
-	  <tr><td>有效期至</td><td>2016-12-12 12:00</td></tr>
-
-   </tbody></table>
-
-
-
-      </div>
-      <div class="bs-docs-section">
-          <div class="page-header">
-            <h1 id="m-2"><a href="#"> 2015年11月</a></h1>
-          </div>
-      <h2 id=""><a href=""> 上海市长海医院</a></h1>
-         <h3>订单</h3>
-    <table class="table">
-
-        <tbody><tr><td>服务名称</td><td id="aa">影像云标准包</td></tr>
-        <tr><td>生效时间</td><td>2016-12-12 12:00</td></tr>
-      <tr><td>有效期至</td><td>2016-12-12 12:00</td></tr>
-
-     </tbody></table>
-
-
-
-        </div>
     </div>
   </div>
 </div>
@@ -122,54 +81,54 @@ orient: 'vertical',
      data:['应付费用','实付费用']
  },
 
- calculable : true,
- xAxis : [
-     {
-         type : 'category',
-         boundaryGap : false,
-         data : ['7月','8月','9月','10月','11月','上月','本月']
-     }
- ],
- yAxis : [
-     {
-         type : 'value',
-         axisLabel : {
-             formatter: '{value}元 '
-         }
-     }
- ],
- series : [
-     {
-         name:'应付费用',
-   smooth:true,
-         type:'line',
-   itemStyle: {normal: {areaStyle: {type: 'default'}}},
-         data:[42800, 42800, 42800, 42800, 42800, 42800, 42800],
-         markPoint : {
-             data : [
-                 {type : 'max', name: '最大值'},
-                 {type : 'min', name: '最小值'}
-             ]
-         },
-         markLine : {
-             data : [
-                 {type : 'average', name: '平均值'}
-             ]
-         }
-     },
-     {
-         name:'实付费用',
-         type:'line',
-    smooth:true,
-     itemStyle: {normal: {areaStyle: {type: 'default'}}},
-         data:[42800, 42800, 42800, 42800, 42800, 42800, 42800],
-         markLine : {
-             data : [
-                 {type : 'average', name : '平均值'}
-             ]
-         }
-     }
- ]
+calculable : true,
+xAxis : [
+{
+    type : 'category',
+    boundaryGap : false,
+    data : ['7月','8月','9月','10月','11月','上月','本月']
+}
+],
+yAxis : [
+{
+    type : 'value',
+    axisLabel : {
+        formatter: '{value}元 '
+    }
+}
+],
+series : [
+{
+    name:'应付费用',
+smooth:true,
+    type:'line',
+itemStyle: {normal: {areaStyle: {type: 'default'}}},
+    data:[44800, 44800, 44800, 44800, 44800, 44800, 44800],
+    markPoint : {
+        data : [
+            {type : 'max', name: '最大值'},
+            {type : 'min', name: '最小值'}
+        ]
+    },
+    markLine : {
+        data : [
+            {type : 'average', name: '平均值'}
+        ]
+    }
+},
+{
+    name:'实付费用',
+    type:'line',
+smooth:true,
+itemStyle: {normal: {areaStyle: {type: 'default'}}},
+    data:[44800, 44800, 44800, 44800, 44800, 44800, 44800],
+    markLine : {
+        data : [
+            {type : 'average', name : '平均值'}
+        ]
+    }
+}
+]
 };
 
 

@@ -14,6 +14,42 @@ from orm import Model, StringField, BooleanField, FloatField, TextField
 def next_id():
     return '%015d%s000' % (int(time.time() * 1000), uuid.uuid4().hex)
 
+class Bills(Model):
+    __table__ = 'bills'
+    id = StringField(primary_key=True, default=next_id, ddl='varchar(50)')
+    service_name = StringField(ddl='varchar(300)')
+    service_id = StringField(ddl='varchar(50)')
+    product_id = StringField(ddl='varchar(50)')
+    product_name = StringField(ddl='varchar(300)')
+    content = StringField(ddl='varchar(300)')
+    enterprise_id = StringField(ddl='varchar(50)')
+    customer_name = StringField(ddl='varchar(50)')
+    mobile = StringField(ddl='varchar(50)')
+    create_time = FloatField(default=time.time)
+
+class Orders(Model):
+    __table__ = 'orders'
+    id = StringField(primary_key=True, default=next_id, ddl='varchar(50)')
+    service_name = StringField(ddl='varchar(300)')
+    service_id = StringField(ddl='varchar(50)')
+    contract_no = StringField(ddl='varchar(50)')
+    streaming_no = StringField(ddl='varchar(50)')
+    product_id = StringField(ddl='varchar(50)')
+    product_name = StringField(ddl='varchar(300)')
+    province = StringField(ddl='varchar(50)')
+    city = StringField(ddl='varchar(50)')
+    order_type = StringField(ddl='varchar(50)')
+    enterprise_id = StringField(ddl='varchar(50)')
+    customer_name = StringField(ddl='varchar(300)')
+    mobile = StringField(ddl='varchar(50)')
+    creator = StringField(ddl='varchar(50)')
+    project_no = StringField(ddl='varchar(50)')
+    contract_url = StringField(ddl='varchar(50)')
+    sale_name = StringField(ddl='varchar(300)')
+    sale_mobile = StringField(ddl='varchar(50)')
+    create_time = FloatField(default=time.time)
+    opening_time = FloatField(default=time.time)
+
 class User(Model):
     __table__ = 'users'
 

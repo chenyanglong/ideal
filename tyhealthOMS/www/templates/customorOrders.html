@@ -16,14 +16,9 @@
       <div class="bs-sidebar hidden-print affix-top" role="complementary">
         <ul id="nav" class="nav bs-sidenav" >
 		 <li  class="active"> <a  href="#root">概况</a>
-		  <li > <a  href="#t1">本月</a>
-          <li > <a  href="#rmyy">2015年8月</a>
-
-
-          </li>
-          <li > <a href="#chyy">2015年7月</a>
-          </li>
-
+       {% for order in orders %}
+		  <li > <a  href="#{{order.id}}">{{order.opening_time.strftime('%Y')}}年{{order.opening_time.strftime('%m')}}月</a>
+       {% endfor %}
         </ul>
       </div>
     </div>
@@ -41,43 +36,27 @@
 
 
       </div>
-
+{% for order in orders %}
       <div class="bs-docs-section">
         <div class="page-header">
-          <h1 id="t1"><a href="baseCustomors.html#rmyy">本月</a></h1>
+          <h1 id="{{order.id}}"><a href="baseCustomors.html#rmyy">{{order.opening_time.strftime('%Y')}}年{{order.opening_time.strftime('%m')}}月</a></h1>
         </div>
-		 <h2 ><a href="baseCustomors.html#rmyy">上海市第一人民医院</a></h1>
-		<h3 id = "test">订单</h3>
+		 <h2 ><a href="baseCustomors.html#rmyy">{{order.customer_name}}</a></h1>
+		<h3 id = "test">订单类型：{{order.order_type}}</h3>
 	<table class="table">
-
-      <tbody><tr><td>服务名称</td><td id="aa">影像云尊享包</td></tr>
-      <tr><td>生效时间</td><td>2016-12-12 12:00</td></tr>
-	  <tr><td>有效期至</td><td>2016-12-12 12:00</td></tr>
+      <tbody>
+        {% for service in order.services %}
+        <tr><td>服务名称：</td><td id="">{{service}}</td></tr>
+        {% endfor %}
+      <tr><td>生效时间：</td><td>2016-1-2 12:00</td></tr>
+	  <tr><td>有效期至：</td><td>2016-1-1 12:00</td></tr>
 
    </tbody></table>
-
-
-
       </div>
+      {% endfor %}
       <!-- File structure
   ================================================== -->
-		<div class="bs-docs-section">
-        <div class="page-header">
-          <h1 id="t2"><a href="#"> 2015年8月</a></h1>
-        </div>
-		<h2 id="chyy"><a href="baseCustomors.html#chyy"> 上海市长海医院</a></h1>
-       <h3>订单</h3>
-	<table class="table">
 
-      <tbody><tr><td>服务名称</td><td id="aa">影像云标准包</td></tr>
-      <tr><td>生效时间</td><td>2016-12-12 12:00</td></tr>
-	  <tr><td>有效期至</td><td>2016-12-12 12:00</td></tr>
-
-   </tbody></table>
-
-
-
-      </div>
     </div>
   </div>
 </div>
@@ -91,7 +70,7 @@
 
      var option = {
  title : {
-     text: '上周销售情况',
+     text: '上半年销售情况',
      subtext: ''
  },
  tooltip : {
@@ -100,7 +79,7 @@
  legend: {
 x:'right',
 orient: 'vertical',
-     data:['订单总额','新增订单数额']
+     data:['订单总额']
  },
 
  calculable : true,
@@ -108,7 +87,7 @@ orient: 'vertical',
      {
          type : 'category',
          boundaryGap : false,
-         data : ['周一','周二','周三','周四','周五','周六','周日']
+         data : ['2015/07','2015/08','2015/09','2015/10','2015/11','2015/12','2016/01']
      }
  ],
  yAxis : [
@@ -125,35 +104,7 @@ orient: 'vertical',
    smooth:true,
          type:'line',
    itemStyle: {normal: {areaStyle: {type: 'default'}}},
-         data:[300, 300, 300, 450, 450, 450, 580],
-         markPoint : {
-             data : [
-                 {type : 'max', name: '最大值'},
-                 {type : 'min', name: '最小值'}
-             ]
-         },
-         markLine : {
-             data : [
-                 {type : 'average', name: '平均值'}
-             ]
-         }
-     },
-     {
-         name:'新增订单数额',
-         type:'line',
-    smooth:true,
-     itemStyle: {normal: {areaStyle: {type: 'default'}}},
-         data:[0, 0, 0, 150, 0, 0, 130],
-         markPoint : {
-             data : [
-                 {name : '周最高', type:'max'}
-             ]
-         },
-         markLine : {
-             data : [
-                 {type : 'average', name : '平均值'}
-             ]
-         }
+         data:[300, 320, 330, 450, 460, 480, 580]
      }
  ]
 };

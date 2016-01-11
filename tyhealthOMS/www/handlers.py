@@ -9,13 +9,14 @@ __author__ = 'Denny Shi'
 import re, time, json, logging, hashlib, base64, asyncio
 
 import markdown2
+from datetime import datetime
 
 from aiohttp import web
 
 from coroweb import get, post
 from apis import Page, APIValueError, APIResourceNotFoundError
 
-from models import User, Comment, Blog, next_id,Service,Hospital,HospitalService
+from models import User, Comment, Blog, next_id,Service,Hospital,HospitalService,Orders,Bills
 from config import configs
 
 COOKIE_NAME = 'tyhealth'
@@ -155,28 +156,34 @@ def customorCard ():
         '__template__':'customor.html',
     }
 
-@get('/customor/bills')
-def customorBills ():
+@get('/customorBills/{enterprise_id}')
+def customorBills (enterprise_id):
+    bills = yield from Bills.findAll('enterprise_id=?',enterprise_id)
+    billServices=[]
+    for bill in bills:
+        bill.services = bill.service_name.split(';')
+        billServices= bill.service_name.split(';')
+        print(billServices)
     return{
         '__template__':'customorBills.html',
+        'bills':bills
     }
 
-@get('/customor/home')
+@get('/customorHome')
 def customorHome ():
     return{
         '__template__':'customorHome.html',
     }
 
-@get('/customor/orders')
-def customorOrders ():
-    return{
-        '__template__':'customorOrders.html',
-    }
+@get('/customorOrders/{enterprise_id}')
+def customorOrders (enterprise_id):
+    orders = yield from Orders.findAll('enterprise_id=?',enterprise_id)
 
-@get('/customor/messages')
-def customorMessages ():
-    return{
-        '__template__':'customorMessages.html',
+    for order in (orders):
+        order.services = order.service_name.split(';')
+    return {
+        '__template__':'customorOrders.html',
+        'orders': orders
     }
 
 @get('/customor/products')
@@ -462,3 +469,119 @@ def api_get_services(*, page='1'):
         return dict(page=p, service=())
     service = yield from Service.findAll(limit=(p.offset, p.limit))
     return dict(page=p, service=service)
+
+@get('/api/orders')
+def api_orders(*, page='1'):
+    page_index = get_page_index(page)
+    num = yield from Orders.findNumber('count(id)')
+    p = Page(num, page_index)
+    if num == 0:
+        return dict(page=p, orders=())
+    orders = yield from Orders.findAll(limit=(p.offset, p.limit))
+    return dict(page=p, orders=orders)
+
+@get('/api/orders/{id}')
+def api_get_order(*, id):
+    order = yield from Orders.find(id)
+    return order
+
+@post('/api/orders')
+def api_create_order(request, *, contract_no, streaming_no, product_id,product_name,service_name,service_id,order_type,province,city,
+enterprise_id,customer_name,mobile,creator,project_no,contract_url,sale_name,sale_mobile,create_time,opening_time):
+    check_admin(request)
+    if not opening_time or not opening_time.strip():
+        raise APIValueError('opening_time', 'opening_time cannot be empty.')
+    if not create_time or not create_time.strip():
+        raise APIValueError('create_time', 'create_time cannot be empty.')
+    if not sale_mobile or not sale_mobile.strip():
+        raise APIValueError('sale_mobile', 'sale_mobile cannot be empty.')
+    if not sale_name or not sale_name.strip():
+        raise APIValueError('sale_name', 'sale_name cannot be empty.')
+    if not contract_url or not contract_url.strip():
+        raise APIValueError('contract_url', 'contract_url cannot be empty.')
+    if not project_no or not project_no.strip():
+        raise APIValueError('project_no', 'project_no cannot be empty.')
+    if not creator or not creator.strip():
+        raise APIValueError('creator', 'creator cannot be empty.')
+    if not mobile or not mobile.strip():
+        raise APIValueError('mobile', 'mobile cannot be empty.')
+    if not customer_name or not customer_name.strip():
+        raise APIValueError('customer_name', 'customer_name cannot be empty.')
+    if not enterprise_id or not enterprise_id.strip():
+        raise APIValueError('enterprise_id', 'enterprise_id cannot be empty.')
+    if not city or not city.strip():
+        raise APIValueError('city', 'city cannot be empty.')
+    if not province or not province.strip():
+        raise APIValueError('province', 'province cannot be empty.')
+    if not contract_no or not contract_no.strip():
+        raise APIValueError('contract_no', 'contract_no cannot be empty.')
+    if not order_type or not order_type.strip():
+        raise APIValueError('order_type', 'order_type cannot be empty.')
+    if not service_id or not service_id.strip():
+        raise APIValueError('service_id', 'service_id cannot be empty.')
+    if not streaming_no or not streaming_no.strip():
+        raise APIValueError('streaming_no', 'streaming_no cannot be empty.')
+    if not product_id or not product_id.strip():
+        raise APIValueError('product_id', 'product_id cannot be empty.')
+    if not product_name or not product_name.strip():
+        raise APIValueError('product_name', 'product_name cannot be empty.')
+    if not service_name or not service_name.strip():
+        raise APIValueError('service_name', 'service_name cannot be empty.')
+    order = Orders(contract_no=contract_no.strip(), streaming_no=streaming_no.strip(), product_id=product_id.strip(),product_name=product_name.strip(),service_name=service_name.strip(),service_id=service_id.strip(),order_type=order_type.strip(),province=province.strip(),city=city.strip(),
+    enterprise_id=enterprise_id.strip(),customer_name=customer_name.strip(),mobile=mobile.strip(),creator=creator.strip(),project_no=project_no.strip(),contract_url=contract_url.strip(),sale_name=sale_name.strip(),sale_mobile=sale_mobile.strip(),create_time=create_time.strip(),opening_time=opening_time.strip())
+    yield from order.save()
+    return order
+
+@post('/api/orders/{id}/delete')
+def api_delete_order(request, *, id):
+    check_admin(request)
+    order = yield from Orders.find(id)
+    yield from order.remove()
+    return dict(id=id)
+
+@get('/api/bills')
+def api_bills(*, page='1'):
+    page_index = get_page_index(page)
+    num = yield from Bills.findNumber('count(id)')
+    p = Page(num, page_index)
+    if num == 0:
+        return dict(page=p, bills=())
+    bills = yield from Bills.findAll(limit=(p.offset, p.limit))
+    return dict(page=p, bills=bills)
+
+@get('/api/bills/{id}')
+def api_get_bill(*, id):
+    bill = yield from Bills.find(id)
+    return bill
+
+@post('/api/bills')
+def api_create_bill(request, *, product_id,product_name,service_name,service_id,
+enterprise_id,customer_name,mobile,create_time):
+    check_admin(request)
+    if not create_time or not create_time.strip():
+        raise APIValueError('create_time', 'create_time cannot be empty.')
+    if not mobile or not mobile.strip():
+        raise APIValueError('mobile', 'mobile cannot be empty.')
+    if not customer_name or not customer_name.strip():
+        raise APIValueError('customer_name', 'customer_name cannot be empty.')
+    if not enterprise_id or not enterprise_id.strip():
+        raise APIValueError('enterprise_id', 'enterprise_id cannot be empty.')
+    if not service_id or not service_id.strip():
+        raise APIValueError('service_id', 'service_id cannot be empty.')
+    if not product_id or not product_id.strip():
+        raise APIValueError('product_id', 'product_id cannot be empty.')
+    if not product_name or not product_name.strip():
+        raise APIValueError('product_name', 'product_name cannot be empty.')
+    if not service_name or not service_name.strip():
+        raise APIValueError('service_name', 'service_name cannot be empty.')
+    bill = Bills(product_id=product_id.strip(),product_name=product_name.strip(),service_name=service_name.strip(),service_id=service_id.strip(),
+    enterprise_id=enterprise_id.strip(),customer_name=customer_name.strip(),mobile=mobile.strip(),create_time=create_time.strip())
+    yield from bill.save()
+    return bill
+
+@post('/api/bills/{id}/delete')
+def api_delete_bill(request, *, id):
+    #check_admin(request)
+    bill = yield from Bills.find(id)
+    yield from bill.remove()
+    return dict(id=id)
