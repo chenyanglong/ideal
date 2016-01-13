@@ -163,7 +163,8 @@ def customorBills (enterprise_id):
     for bill in bills:
         bill.services = bill.service_name.split(';')
         billServices= bill.service_name.split(';')
-        print(billServices)
+        bill.create_time = time.localtime(bill.create_time)
+        bill.create_time = time.strftime('%Y%m%d',bill.create_time)
     return{
         '__template__':'customorBills.html',
         'bills':bills
@@ -175,12 +176,26 @@ def customorHome ():
         '__template__':'customorHome.html',
     }
 
+@get('/customorOrdersADD')
+def customorOrdersADD ():
+    return{
+        '__template__':'customorOrdersADD.html',
+    }
+
+@get('/customorOrdersDelete')
+def customorOrdersDelete ():
+    return{
+        '__template__':'customorOrdersDelete.html',
+    }
+
 @get('/customorOrders/{enterprise_id}')
 def customorOrders (enterprise_id):
     orders = yield from Orders.findAll('enterprise_id=?',enterprise_id)
 
     for order in (orders):
         order.services = order.service_name.split(';')
+        order.openingTime = time.localtime(order.opening_time)
+        order.openingTime = time.strftime('%Y%m%d',order.openingTime)
     return {
         '__template__':'customorOrders.html',
         'orders': orders
@@ -488,7 +503,7 @@ def api_get_order(*, id):
 @post('/api/orders')
 def api_create_order(request, *, contract_no, streaming_no, product_id,product_name,service_name,service_id,order_type,province,city,
 enterprise_id,customer_name,mobile,creator,project_no,contract_url,sale_name,sale_mobile,create_time,opening_time):
-    check_admin(request)
+    #check_admin(request)
     if not opening_time or not opening_time.strip():
         raise APIValueError('opening_time', 'opening_time cannot be empty.')
     if not create_time or not create_time.strip():
@@ -527,14 +542,14 @@ enterprise_id,customer_name,mobile,creator,project_no,contract_url,sale_name,sal
         raise APIValueError('product_name', 'product_name cannot be empty.')
     if not service_name or not service_name.strip():
         raise APIValueError('service_name', 'service_name cannot be empty.')
-    order = Orders(contract_no=contract_no.strip(), streaming_no=streaming_no.strip(), product_id=product_id.strip(),product_name=product_name.strip(),service_name=service_name.strip(),service_id=service_id.strip(),order_type=order_type.strip(),province=province.strip(),city=city.strip(),
+    order = Orders(id=5002,contract_no=contract_no.strip(), streaming_no=streaming_no.strip(), product_id=product_id.strip(),product_name=product_name.strip(),service_name=service_name.strip(),service_id=service_id.strip(),order_type=order_type.strip(),province=province.strip(),city=city.strip(),
     enterprise_id=enterprise_id.strip(),customer_name=customer_name.strip(),mobile=mobile.strip(),creator=creator.strip(),project_no=project_no.strip(),contract_url=contract_url.strip(),sale_name=sale_name.strip(),sale_mobile=sale_mobile.strip(),create_time=create_time.strip(),opening_time=opening_time.strip())
     yield from order.save()
     return order
 
-@post('/api/orders/{id}/delete')
+@post('/api/orders/delete/{id}')
 def api_delete_order(request, *, id):
-    check_admin(request)
+    #check_admin(request)
     order = yield from Orders.find(id)
     yield from order.remove()
     return dict(id=id)

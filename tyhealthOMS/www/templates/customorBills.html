@@ -17,7 +17,8 @@
         <ul id="nav" class="nav bs-sidenav" >
 		 <li  class="active"> <a  href="#root">概况</a>
        {% for bill in bills %}
-      <li > <a  href="#{{bill.id}}">{{bill.create_time.strftime('%Y')}}年{{bill.create_time.strftime('%m')}}月</a>
+      <li > <a  href="#{{bill.id}}">{{bill.create_time[0:4]}}年{{bill.create_time[4:6]}}月</a>
+
        {% endfor %}
 
         </ul>
@@ -40,7 +41,7 @@
 {% for bill in bills %}
       <div class="bs-docs-section">
         <div class="page-header">
-          <h1 id="{{bill.id}}"><a href="baseCustomors.html#rmyy">{{bill.create_time.strftime('%Y')}}年{{bill.create_time.strftime('%m')}}月账单</a></h1>
+          <h1 id="{{bill.id}}"><a href="baseCustomors.html#rmyy">{{bill.create_time[0:4]}}年{{bill.create_time[4:6]}}月账单</a></h1>
         </div>
 		 <h2 ><a href="baseCustomors.html#rmyy">{{bill.customer_name}}</a></h1>
 	<table class="table">
